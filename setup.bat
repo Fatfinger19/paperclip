@@ -1,4 +1,7 @@
 @echo off
+:: Ensure we are in the repository root
+cd /d "%~dp0"
+
 echo == Paperclip Windows Setup ==
 echo.
 

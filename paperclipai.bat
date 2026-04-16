@@ -1,6 +1,9 @@
 @echo off
 SETLOCAL EnableDelayedExpansion
 
+:: Ensure we are in the repository root
+cd /d "%~dp0"
+
 set SCRIPT_DIR=%~dp0
 set CLI_ENTRY=%SCRIPT_DIR%cli\src\index.ts
 
@@ -45,7 +48,7 @@ if not exist "%SCRIPT_DIR%node_modules" (
 
 :: Run Paperclip CLI
 if !HAS_PNPM! eq 0 (
-    pnpm --dir "%SCRIPT_DIR%" exec tsx "%CLI_ENTRY%" %*
+    pnpm exec tsx "%CLI_ENTRY%" %*
 ) else (
     echo [paperclip] Warning: pnpm not found, falling back to npx...
     npx --prefix "%SCRIPT_DIR%cli" tsx "%CLI_ENTRY%" %*
