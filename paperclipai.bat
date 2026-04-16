@@ -7,38 +7,54 @@ set CLI_ENTRY=%SCRIPT_DIR%cli\src\index.ts
 :: Check for Node.js
 where node >nul 2>nul
 if %ERRORLEVEL% neq 0 (
-    echo Error: Node.js is not installed or not in your PATH.
+    echo [paperclip] Error: Node.js is not installed or not in your PATH.
     echo Please install Node.js 20+ from https://nodejs.org/
     pause
     exit /b 1
 )
 
-:: Prefer pnpm if available
+:: Check for pnpm
 where pnpm >nul 2>nul
-if %ERRORLEVEL% eq 0 (
-    :: Run using pnpm which handles workspace dependencies correctly
+set HAS_PNPM=%ERRORLEVEL%
+
+:: Check if node_modules exists
+if not exist "%SCRIPT_DIR%node_modules" (
+    echo [paperclip] Dependencies not found.
+    if !HAS_PNPM! eq 0 (
+        set /p REQ="Would you like to run 'pnpm install' now? (y/n): "
+        if /i "!REQ!"=="y" (
+            pnpm install
+            if !ERRORLEVEL! neq 0 (
+                echo [paperclip] Installation failed.
+                pause
+                exit /b 1
+            )
+        ) else (
+            echo Please run 'pnpm install' manually before using this tool.
+            pause
+            exit /b 1
+        )
+    ) else (
+        echo [paperclip] Error: pnpm is not installed.
+        echo Please install it first: npm install -g pnpm
+        echo Then run 'pnpm install' in this directory.
+        pause
+        exit /b 1
+    )
+)
+
+:: Run Paperclip CLI
+if !HAS_PNPM! eq 0 (
     pnpm --dir "%SCRIPT_DIR%" exec tsx "%CLI_ENTRY%" %*
-    goto :handle_exit
-)
-
-:: Fallback to npx
-where npx >nul 2>nul
-if %ERRORLEVEL% eq 0 (
-    echo Using npx fallback...
+) else (
+    echo [paperclip] Warning: pnpm not found, falling back to npx...
     npx --prefix "%SCRIPT_DIR%cli" tsx "%CLI_ENTRY%" %*
-    goto :handle_exit
 )
 
-echo Error: Neither pnpm nor npx were found.
-echo Please install pnpm (npm install -g pnpm) or ensure npm is in your PATH.
-pause
-exit /b 1
-
-:handle_exit
 set EXIT_CODE=%ERRORLEVEL%
 if %EXIT_CODE% neq 0 (
     echo.
-    echo Paperclip exited with error code %EXIT_CODE%
+    echo [paperclip] Exited with error code %EXIT_CODE%
     pause
     exit /b %EXIT_CODE%
 )

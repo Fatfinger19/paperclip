@@ -208,6 +208,7 @@ Paperclip is fully compatible with Windows.
   ```cmd
   .\paperclipai.bat onboard
   ```
+- **One-click Setup:** You can run `setup.bat` to install all dependencies and build the project automatically.
 
 <br/>
 
