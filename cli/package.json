@@ -31,7 +31,7 @@
   },
   "scripts": {
     "dev": "tsx src/index.ts",
-    "build": "node --input-type=module -e \"import esbuild from 'esbuild'; import config from './esbuild.config.mjs'; await esbuild.build(config);\" && node -e \"if (process.platform !== 'win32') { import('node:fs').then(fs => fs.chmodSync('dist/index.js', 0o755)) }\"",
+    "build": "node --input-type=module -e \"import esbuild from 'esbuild'; import config from './esbuild.config.mjs'; await esbuild.build(config);\" && shx chmod +x dist/index.js",
     "clean": "shx rm -rf dist",
     "typecheck": "tsc --noEmit"
   },
