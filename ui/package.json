@@ -15,12 +15,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && node node_modules/vite/bin/vite.js build",
     "preview": "vite preview",
     "typecheck": "tsc -b",
-    "clean": "rm -rf dist tsconfig.tsbuildinfo",
-    "prepack": "rm -f package.dev.json && cp package.json package.dev.json && node ../scripts/generate-ui-package-json.mjs",
-    "postpack": "if [ -f package.dev.json ]; then mv package.dev.json package.json; fi"
+    "clean": "shx rm -rf dist tsconfig.tsbuildinfo",
+    "prepack": "shx rm -f package.dev.json && shx cp package.json package.dev.json && node ../scripts/generate-ui-package-json.mjs",
+    "postpack": "node -e \"if (require('node:fs').existsSync('package.dev.json')) require('node:fs').renameSync('package.dev.json', 'package.json')\""
   },
   "publishConfig": {
     "access": "public"
