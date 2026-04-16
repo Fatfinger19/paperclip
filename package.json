@@ -19,7 +19,7 @@
     "db:generate": "pnpm --filter @paperclipai/db generate",
     "db:migrate": "pnpm --filter @paperclipai/db migrate",
     "secrets:migrate-inline-env": "tsx scripts/migrate-inline-env-secrets.ts",
-    "db:backup": "./scripts/backup-db.sh",
+    "db:backup": "pnpm paperclipai db:backup",
     "paperclipai": "node cli/node_modules/tsx/dist/cli.mjs cli/src/index.ts",
     "build:npm": "./scripts/build-npm.sh",
     "release": "./scripts/release.sh",
@@ -43,6 +43,7 @@
     "@playwright/test": "^1.58.2",
     "cross-env": "^10.1.0",
     "esbuild": "^0.27.3",
+    "shx": "^0.4.0",
     "typescript": "^5.7.3",
     "vitest": "^3.0.5"
   },
