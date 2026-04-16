@@ -2,7 +2,6 @@
 SETLOCAL EnableDelayedExpansion
 
 set SCRIPT_DIR=%~dp0
-set TSX_PATH=%SCRIPT_DIR%cli\node_modules\tsx\dist\cli.mjs
 set CLI_ENTRY=%SCRIPT_DIR%cli\src\index.ts
 
 :: Check for Node.js
@@ -14,21 +13,29 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
-:: Check if dependencies are installed
-if not exist "%TSX_PATH%" (
-    echo Error: Dependencies not found.
-    echo Please run 'pnpm install' in the repository root first.
-    echo.
-    echo If you don't have pnpm installed, run: npm install -g pnpm
-    pause
-    exit /b 1
+:: Prefer pnpm if available
+where pnpm >nul 2>nul
+if %ERRORLEVEL% eq 0 (
+    :: Run using pnpm which handles workspace dependencies correctly
+    pnpm --dir "%SCRIPT_DIR%" exec tsx "%CLI_ENTRY%" %*
+    goto :handle_exit
 )
 
-:: Run Paperclip CLI
-node "%TSX_PATH%" "%CLI_ENTRY%" %*
+:: Fallback to npx
+where npx >nul 2>nul
+if %ERRORLEVEL% eq 0 (
+    echo Using npx fallback...
+    npx --prefix "%SCRIPT_DIR%cli" tsx "%CLI_ENTRY%" %*
+    goto :handle_exit
+)
 
+echo Error: Neither pnpm nor npx were found.
+echo Please install pnpm (npm install -g pnpm) or ensure npm is in your PATH.
+pause
+exit /b 1
+
+:handle_exit
 set EXIT_CODE=%ERRORLEVEL%
-
 if %EXIT_CODE% neq 0 (
     echo.
     echo Paperclip exited with error code %EXIT_CODE%
